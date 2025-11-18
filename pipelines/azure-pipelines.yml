@@ -1,0 +1,89 @@
+# Simulează pipeline-ul local: build firmware ARM + build AI + validare + semnare
+
+trigger:
+  branches:
+    include: [ main, release/* ]  # branch-uri care declanșează pipeline-ul
+
+variables:
+  APP_NAME: my_cobalt_app
+  TOOLCHAIN_BIN: /usr/bin
+  SIGN_KEY_SECUREFILE: signing_key.gpg  # placeholder pentru semnare
+
+stages:
+# -------------------------
+# Stage 1: Build Firmware ARM
+# -------------------------
+- stage: Build_Firmware
+  displayName: 'Build Firmware ARM'
+  jobs:
+  - job: build_firmware
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: self
+      displayName: 'Checkout code'
+    - script: |
+        echo "Step 1: Building firmware..."
+        make clean
+        make
+      displayName: 'Run Makefile'
+    - publish: build
+      artifact: cobalt_build
+      displayName: 'Publish Firmware Artifact'
+
+# -------------------------
+# Stage 2: Build & Validate AI Model
+# -------------------------
+- stage: Build_Model
+  displayName: 'Build & Validate AI Model'
+  dependsOn: Build_Firmware
+  jobs:
+  - job: build_model
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: self
+    - script: |
+        echo "Step 2a: Generating AI model..."
+        python3 model/build_model.py
+      displayName: 'Run model build script'
+    - script: |
+        echo "Step 2b: Validating AI model..."
+        python3 model/validate_model.py
+      displayName: 'Validate AI model'
+    - publish: model_build
+      artifact: model_artifact
+      displayName: 'Publish Model Artifact'
+
+# -------------------------
+# Stage 3: Sign & Publish
+# -------------------------
+- stage: SignAndPublish
+  displayName: 'Sign & Publish Artifacts'
+  dependsOn:
+    - Build_Firmware
+    - Build_Model
+  jobs:
+  - job: sign_publish
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: self
+    - download: current
+      artifact: cobalt_build
+    - download: current
+      artifact: model_artifact
+
+    # Semnare simulată
+    - script: |
+        echo "Step 3: Signing and publishing artifacts..."
+        mkdir -p signed
+        cp build/main.bin signed/main.bin.sig
+        cp model_build/model.bin signed/model.bin.sig
+        cp model_build/model_metadata.txt signed/
+        echo "Artifacts signed (simulated)."
+      displayName: 'Sign artifacts'
+
+    - publish: signed
+      artifact: final_release
+      displayName: 'Publish final signed artifacts'

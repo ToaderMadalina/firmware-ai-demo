@@ -1,0 +1,12 @@
+# Build outputs
+/build/
+/model_build/
+/signed/
+
+# Python virtual environment
+.venv/
+__pycache__/
+*.pyc
+
+# OS files
+.DS_Store
