@@ -60,6 +60,7 @@ Observații
 
 Pipeline-ul local simulează complet un pipeline DevOps fără a necesita cont Azure.
 
-Artefactele generate pot fi folosite pentru demonstrații la interviu.
+Artefactele generate pot fi folosite pentru demonstrații.
 
-Semnarea artefactelor este simulată, în producție ar folosi GPG/KeyVault.
+Semnarea artefactelor este simulată, în producție s-ar folosi GPG/KeyVault.
+
