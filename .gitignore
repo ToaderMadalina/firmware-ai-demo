@@ -1,12 +1,7 @@
-# Build outputs
-/build/
-/model_build/
-/signed/
-
-# Python virtual environment
 .venv/
+build/
+model_build/
+signed/
 __pycache__/
 *.pyc
 
-# OS files
-.DS_Store
