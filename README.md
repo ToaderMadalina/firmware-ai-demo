@@ -3,64 +3,151 @@
 ## Descriere
 Acest proiect demonstrează un pipeline integrat pentru firmware ARM bare-metal și generare de model AI, cu simulare locală a unui pipeline de tip Azure DevOps.
 
-Poate fi folosit pentru interviuri pentru roluri DevOps/Embedded/CI/CD.
-
----
-
-## Structura proiectului
-
+1️⃣ Structura proiectului
 firmware-ai-demo/
-│
-├── src/ # Cod firmware ARM bare-metal
-│ └── main.c
-├── start.s # Startup minimal ARM
-├── linker.ld # Linker script pentru ARM
-├── Makefile # Build firmware ARM
-├── model/
-│ ├── build_model.py # Script pentru generare artefact AI
-│ └── validate_model.py # Script de validare AI
-├── pipelines/
-│ └── azure-pipelines-demo.yml # YAML demo pipeline
-├── run_pipeline.sh # Script local simulare pipeline
-├── signed/ # Folder artefacte semnate (generat la run_pipeline.sh)
-└── README.md # Acest fișier
+├── build/                  # Artefacte firmware ARM (ELF/BIN/MAP)
+├── model_build/            # Artefacte model AI
+├── signed/                 # Artefacte semnate (.sig)
+├── keys/                   # Chei RSA private/public
+├── src/                    # Cod sursă firmware
+│   └── main.c
+├── start.s                 # Cod start-up ARM
+├── linker.ld               # Script de link
+├── ex1_bin_io.py           # Script modificare binar
+├── ex2_checksum.py         # Script calcul checksum
+├── sign_artifact.py        # Script semnare artefact
+├── verify_signature.py     # Script verificare semnătură
+├── run_full_pipeline.py    # Pipeline complet automatizat
+└── README.md               # Documentație proiect
+
+2️⃣ README.md
+# Firmware + AI Demo Pipeline
+
+## Descriere
+Acest proiect demonstrează un pipeline complet automatizat pentru artefacte firmware ARM și modele AI. Pipeline-ul include:
+
+1. Build cod ARM pentru arhitectura Cortex-A76 / Neoverse-N2
+2. Generare și modificare artefacte AI
+3. Calcul checksum-uri (MD5, SHA256)
+4. Semnare criptografică a artefactelor (RSA-PSS + SHA256)
+5. Verificare semnături
+6. Testare automată cu Pytest
+
+Proiectul combină principii de DevOps, securitate, scripting Python și integrare firmware + AI.
+
+---
+
+## Cerințe
+- Ubuntu 22.04 LTS
+- Python 3.10+ (virtualenv recomandat)
+- GCC ARM cross-compiler: `arm-none-eabi-gcc`
+- Pachete Python:
+  ```bash
+  pip install -r requirements.txt
+
+
+Chei RSA în folderul keys/
+
+Structura proiectului
+
+src/ → cod sursă firmware ARM
+
+start.s → cod de start ARM
+
+linker.ld → script link
+
+model_build/ → artefacte AI
+
+build/ → artefacte firmware ARM (ELF/BIN/MAP)
+
+signed/ → artefacte semnate
+
+ex1_bin_io.py → modificare binar
+
+ex2_checksum.py → calcul checksum
+
+sign_artifact.py → semnare artefact
+
+verify_signature.py → verificare semnătură
+
+run_full_pipeline.py → pipeline complet
+
+Cum rulezi pipeline-ul
+
+Activează virtualenv:
+
+source .venv/bin/activate
+
+
+Rulează pipeline complet:
+
+python3 run_full_pipeline.py
+
+
+Output așteptat:
+
+Model artefact generated: model_build/model.bin
+Modified model saved: model_build/model_modified.bin
+MD5 / SHA256 checksums
+Signature written to signed/*.sig
+✔ VERIFIED: signature is valid
+Pytest: toate testele trecute
+
+Testare
+
+Toate testele automate sunt în run_full_pipeline.py și folosesc Pytest
+
+Testele verifică integritatea artefactelor, checksum-uri și semnături valide
+
+Tehnologii folosite
+
+Firmware ARM: arm-none-eabi-gcc, Cortex-A76 / Neoverse-N2
+
+Python: scripting automatizare, checksum, semnare/verificare, teste
+
+Hash & Semnare: hashlib (MD5, SHA256), cryptography (RSA-PSS)
+
+Pipeline: Python scripts, end-to-end reproducibil
+
+CI/CD concept: integrabil ușor în Azure DevOps, Jenkins sau GitLab
+
+Sistem: Ubuntu 22.04 LTS
+
+Extensii posibile
+
+Integrare reală în Azure DevOps pipelines
+
+Adăugare notificări Slack / email la eșecul pipeline-ului
+
+Suport pentru mai multe tipuri de modele AI sau firmware
+
+Containerizare pipeline complet (Docker)
 
 
 ---
 
-## Pași de rulare (simulare locală)
+# **3️⃣ Notes pentru Git**
 
-1. Asigură-te că ai instalate:
-   - `gcc-arm-none-eabi`, `make`, `python3`
-2. Clonează repository-ul
-3. Rulăm pipeline-ul local:
+- Creează repository local:
 
 ```bash
-chmod +x run_pipeline.sh
-./run_pipeline.sh
+git init
+git add .
+git commit -m "Initial commit - firmware + AI pipeline demo"
 
 
-Veți vedea:
-Build firmware (build/main.bin)
-Build model AI (model_build/model.bin)
-Validare model
-Semnare și publicare artefacte (signed/)
+Adaugă .gitignore:
 
-Explicație rapidă
+.venv/
+build/
+model_build/
+signed/
+__pycache__/
+*.pyc
 
-Firmware ARM: cod bare-metal simplu cu un counter infinit.
 
-Model AI: script Python dummy care generează un fișier binar + metadata.
+Creează repository pe GitHub / GitLab și împinge:
 
-Pipeline YAML: reprezintă fluxul de build + validare + semnare (simulat).
-
-run_pipeline.sh: execută toate etapele secvențial local.
-
-Observații
-
-Pipeline-ul local simulează complet un pipeline DevOps fără a necesita cont Azure.
-
-Artefactele generate pot fi folosite pentru demonstrații.
-
-Semnarea artefactelor este simulată, în producție s-ar folosi GPG/KeyVault.
+git remote add origin <repo_url>
+git push -u origin main
 
