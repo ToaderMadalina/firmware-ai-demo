@@ -4,4 +4,6 @@ model_build/
 signed/
 __pycache__/
 *.pyc
+keys/private_key.pem
+keys/private_key_new.pem
 
